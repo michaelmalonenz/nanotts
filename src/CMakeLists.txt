@@ -10,9 +10,16 @@ set(SOURCES
     wav.cpp
 )
 
-add_executable(nanotts ${SOURCES})
+add_executable(nanotts "${SOURCES}")
 
 # for release_version.h
 target_include_directories(nanotts PRIVATE "${CMAKE_CURRENT_LIST_DIR}/..")
 
-target_link_libraries(nanotts PUBLIC ttspico asound)
+target_link_libraries(
+    nanotts
+    INTERFACE
+        cxxopts
+    PUBLIC
+        ttspico
+        asound
+)
