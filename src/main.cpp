@@ -30,9 +30,9 @@
 #include <sys/mman.h> // mmap
 
 extern "C" {
-#include "svoxpico/picoapi.h"
-#include "svoxpico/picoapid.h"
-#include "svoxpico/picoos.h"
+#include "picoapi.h"
+#include "picoapid.h"
+#include "picoos.h"
 }
 
 #include "PicoVoices.h"
