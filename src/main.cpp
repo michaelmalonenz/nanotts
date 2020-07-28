@@ -28,6 +28,8 @@
 #include <unistd.h>
 #include <sys/mman.h> // mmap
 
+#include "cxxopts.hpp"
+
 extern "C"
 {
 #include "picoapi.h"
@@ -114,8 +116,8 @@ private:
     int in_mode;
     int out_mode;
 
-    const int my_argc;
-    const char **my_argv;
+    int my_argc;
+    char **my_argv;
     const char *exename;
 
     char *voice;
@@ -146,7 +148,7 @@ private:
 public:
     bool silence_output;
 
-    Nano(const int, const char **);
+    Nano(int, char **);
     virtual ~Nano();
 
     void PrintUsage();
@@ -173,7 +175,7 @@ public:
     bool writingWaveFile() { return (out_mode & OUT_SINGLE_FILE) == OUT_SINGLE_FILE; }
 };
 
-Nano::Nano(const int i, const char **v) : my_argc(i), my_argv(v), listener(this)
+Nano::Nano(int i, char **v) : my_argc(i), my_argv(v), listener(this)
 {
     voice = 0;
     langfiledir = 0;
@@ -277,8 +279,6 @@ void Nano::PrintUsage()
         {"   --version", "Displays version information about this program"},
         //        { "  --files", "set multiple input files" },
         {" ", " "},
-        {"Possible Voices: ", " "},
-        {"   en-US, en-GB, de-DE, es-ES, fr-FR, it-IT", " "},
         {" ", " "},
         {"Examples: ", " "},
         {line1, " "},
@@ -311,21 +311,45 @@ char *Nano::copy_arg(int index)
 
 int Nano::parse_commandline_arguments()
 {
+
+    cxxopts::Options options("NanoTTS", "A flexible text-to-speech engine");
+    options.add_options()
+        ("h,help", "Print this help")
+        ("v,version", "Print the version")
+        ("i,input", "input text argument", cxxopts::value<std::string>())
+        ("f,file", "use the given text file as input", cxxopts::value<std::string>())
+        ("o,output", "Write output to WAV/PCM file (enables WAV output)", cxxopts::value<std::string>())
+        ("w,wav", "Write output to WAV file, will generate filename if '-o' option not provided")
+        ("p,play", "Play audio output")
+        ("m,no-play", "do NOT play output on PC's soundcard")
+        ("c,stdout", "Send raw PCM output to stdout")
+        ("x,prefix", "Set the file prefix (e.g. \"MyRecording-\").")
+        // {"", "Generated files will be auto-numbered."},
+        // {"", "Good for running multiple times with different inputs"},
+        ("speed", "change voice speed <0.2-5.0>", cxxopts::value<float>())
+        ("pitch", "change the voice pitch <0.5-2.0>", cxxopts::value<float>())
+        ("volume", "change the voice volume <0.0-5.0> (>1.0 may result in degraded quality)", cxxopts::value<float>())
+        // {"Possible Voices: ", " "},
+        // {"   en-US, en-GB, de-DE, es-ES, fr-FR, it-IT", " "},
+        ;
+#define WARN_UNMATCHED_INPUTS()
+    auto args = options.parse(my_argc, my_argv);
+    
+    if (args["h"].count() > 0)
+    {
+        std::cout << options.help() << std::endl;
+        exit(-1);
+    }
+
+    if (args["v"].count() > 0)
+    {
+        std::cout << VERSIONED_NAME << std::endl;
+        exit(-666);
+    }
     // inputs and especially output are explicit
     in_mode = IN_NOT_SET;
     out_mode = OUT_NOT_SET;
-    bool trailing_args = false;
-
-#define WARN_UNMATCHED_INPUTS()                                                                       \
-    do                                                                                                \
-    {                                                                                                 \
-        if (trailing_args)                                                                            \
-        {                                                                                             \
-            fprintf(stderr, " **warning: commandline switch: '%s' in trailing inputs\n", my_argv[i]); \
-            break;                                                                                    \
-        }                                                                                             \
-    } while (0)
-
+    
     if (!isatty(fileno(stdin)))
     {
         in_mode = IN_STDIN;
@@ -333,19 +357,8 @@ int Nano::parse_commandline_arguments()
 
     for (int i = 1; i < my_argc; i++)
     {
-        // PRINT HELP
-        if (strcmp(my_argv[i], "-h") == 0 || strcmp(my_argv[i], "--help") == 0)
-        {
-            return -1;
-        }
-        if (strcmp(my_argv[i], "--version") == 0)
-        {
-            fprintf(stderr, "%s\n", VERSIONED_NAME);
-            return -666;
-        }
-
         // INPUTS
-        else if (strcmp(my_argv[i], "-i") == 0)
+        if (strcmp(my_argv[i], "-i") == 0)
         {
             WARN_UNMATCHED_INPUTS();
             if (in_mode != IN_NOT_SET)
@@ -491,7 +504,6 @@ int Nano::parse_commandline_arguments()
             }
 
             // TODO: collect the valid straggling terms and concat them together
-            trailing_args = true; // behavior changes once we encounter trailing arguments
             words = copy_arg(i);
             in_mode = IN_CMDLINE_TRAILING;
         }
@@ -796,13 +808,13 @@ public:
     /**
      * utility method to pass-through arguments
      */
-    static void setArgs(const int i, const char **v);
+    static void setArgs(int i, char **v);
 
 private:
     /**
      * prevent outside construction
      */
-    NanoSingleton(const int, const char **);
+    NanoSingleton(int, char **);
 
     /**
      * prevent compile-time deletion
@@ -824,12 +836,12 @@ private:
      */
     static NanoSingleton *single_instance;
     static int my_argc;
-    static const char **my_argv;
+    static char **my_argv;
 };
 
 NanoSingleton *NanoSingleton::single_instance;
 int NanoSingleton::my_argc;
-const char **NanoSingleton::my_argv;
+char **NanoSingleton::my_argv;
 
 // implementations
 NanoSingleton &NanoSingleton::instance()
@@ -850,7 +862,7 @@ void NanoSingleton::destroy()
     }
 }
 
-NanoSingleton::NanoSingleton(const int i, const char **v) : Nano(i, v)
+NanoSingleton::NanoSingleton(int i, char **v) : Nano(i, v)
 {
 }
 
@@ -858,7 +870,7 @@ NanoSingleton::~NanoSingleton()
 {
 }
 
-void NanoSingleton::setArgs(const int i, const char **v)
+void NanoSingleton::setArgs(int i, char **v)
 {
     my_argc = i;
     my_argv = v;
@@ -937,7 +949,7 @@ PicoSingleton::~PicoSingleton()
 PicoSingleton *PicoSingleton::single_instance;
 //////////////////////////////////////////////////////////////////
 
-int main(int argc, const char **argv)
+int main(int argc, char **argv)
 {
     NanoSingleton::setArgs(argc, argv);
 

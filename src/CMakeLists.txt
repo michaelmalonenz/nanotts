@@ -18,7 +18,7 @@ target_include_directories(nanotts PRIVATE "${CMAKE_CURRENT_LIST_DIR}/..")
 target_link_libraries(
     nanotts
     INTERFACE
-        cxxopts
+        cxxopts::cxxopts
     PUBLIC
         ttspico
         asound
