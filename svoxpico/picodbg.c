@@ -424,9 +424,7 @@ void picodbg_assert(const char *file, int line, const char *func, const char *ex
 
 /* To prevent warning about "translation unit is empty" when
    diagnostic output is disabled. */
-static void picodbg_dummy(void) {
-    picodbg_dummy();
-}
+void picodbg_dummy(void) {}
 
 #endif /* defined(PICO_DEBUG) */
 

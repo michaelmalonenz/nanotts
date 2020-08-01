@@ -157,7 +157,7 @@ typedef struct acph_subobj {
 } acph_subobj_t;
 
 
-static pico_status_t acphInitialize(register picodata_ProcessingUnit this, picoos_int32 resetMode) {
+static pico_status_t acphInitialize(picodata_ProcessingUnit this, picoos_int32 resetMode) {
     acph_subobj_t * acph;
     picoos_uint16 i;
 
@@ -272,18 +272,19 @@ static pico_status_t acphInitialize(register picodata_ProcessingUnit this, picoo
     return PICO_OK;
 }
 
-static picodata_step_result_t acphStep(register picodata_ProcessingUnit this,
+static picodata_step_result_t acphStep(picodata_ProcessingUnit this,
                                      picoos_int16 mode,
                                      picoos_uint16 *numBytesOutput);
 
-static pico_status_t acphTerminate(register picodata_ProcessingUnit this)
+static pico_status_t acphTerminate(picodata_ProcessingUnit this)
 {
+    (void)this;
     return PICO_OK;
 }
 
-static pico_status_t acphSubObjDeallocate(register picodata_ProcessingUnit this,
+static pico_status_t acphSubObjDeallocate(picodata_ProcessingUnit this,
                                         picoos_MemoryManager mm) {
-    mm = mm;        /* avoid warning "var not used in this function"*/
+    (void)mm;        /* avoid warning "var not used in this function"*/
     if (NULL != this) {
         picoos_deallocate(this->common->mm, (void *) &this->subObj);
     }
@@ -325,12 +326,13 @@ picodata_ProcessingUnit picoacph_newAccPhrUnit(picoos_MemoryManager mm,
 /* ***********************************************************************/
 
 
-static picoos_uint8 acphGetNrSylls(register picodata_ProcessingUnit this,
-                                 register acph_subobj_t *acph,
+static picoos_uint8 acphGetNrSylls(picodata_ProcessingUnit this,
+                                 acph_subobj_t *acph,
                                  const picoos_uint16 ind) {
     picoos_uint8 i;
     picoos_uint8 ch;
     picoos_uint8 count;
+    (void)this;
 
     count = 1;
     for (i = 0; i < acph->headx[ind].head.len; i++) {
@@ -349,16 +351,17 @@ static picoos_uint8 acphGetNrSylls(register picodata_ProcessingUnit this,
 
 
 /* find next POS to the left of 'ind' and return its POS and index */
-static picoos_uint8 acphPhrItemSeqGetPosLeft(register picodata_ProcessingUnit this,
-                                           register acph_subobj_t *acph,
+static picoos_uint8 acphPhrItemSeqGetPosLeft(picodata_ProcessingUnit this,
+                                           acph_subobj_t *acph,
                                            const picoos_uint16 ind,
                                            picoos_uint16 *leftind) {
     picoos_uint8 val;
     picoos_int32 i;
+    (void)this;
 
     val = PICOKDT_EPSILON;
     for (i = ind - 1; ((val == PICOKDT_EPSILON) && (i >= 0)); i--) {
-        if ((acph->headx[i].head.type == PICODATA_ITEM_WORDPHON)) {
+        if (acph->headx[i].head.type == PICODATA_ITEM_WORDPHON) {
             val = acph->headx[i].head.info1;
         }
     }
@@ -368,8 +371,8 @@ static picoos_uint8 acphPhrItemSeqGetPosLeft(register picodata_ProcessingUnit th
 
 
 /* right-to-left, for each WORDPHON do phr */
-static pico_status_t acphSubPhrasing(register picodata_ProcessingUnit this,
-                                   register acph_subobj_t *acph) {
+static pico_status_t acphSubPhrasing(picodata_ProcessingUnit this,
+                                    acph_subobj_t *acph) {
     picokdt_classify_result_t dtres;
     picoos_uint8 valbuf[5];
     picoos_uint16 nrwordspre;
@@ -614,16 +617,17 @@ static pico_status_t acphSubPhrasing(register picodata_ProcessingUnit this,
 /* ***********************************************************************/
 
 /* find next POS to the left of 'ind' and return its POS and index */
-static picoos_uint8 acphAccItemSeqGetPosLeft(register picodata_ProcessingUnit this,
-                                           register acph_subobj_t *acph,
-                                           const picoos_uint16 ind,
-                                           picoos_uint16 *leftind) {
+static picoos_uint8 acphAccItemSeqGetPosLeft(picodata_ProcessingUnit this,
+                                             acph_subobj_t *acph,
+                                             const picoos_uint16 ind,
+                                             picoos_uint16 *leftind) {
     picoos_uint8 val;
     picoos_int32 i;
+    (void)this;
 
     val = PICOKDT_EPSILON;
     for (i = ind - 1; ((val == PICOKDT_EPSILON) && (i >= 0)); i--) {
-        if ((acph->headx[i].head.type == PICODATA_ITEM_WORDPHON)) {
+        if (acph->headx[i].head.type == PICODATA_ITEM_WORDPHON) {
             val = acph->headx[i].head.info1;
         }
     }
@@ -634,14 +638,15 @@ static picoos_uint8 acphAccItemSeqGetPosLeft(register picodata_ProcessingUnit th
 
 /* s1: nr sylls in word before the first primary stressed syll,
    s2: nr sylls in word after (but excluding) the first primary stressed syll */
-static picoos_uint8 acphAccNrSyllParts(register picodata_ProcessingUnit this,
-                                     register acph_subobj_t *acph,
+static picoos_uint8 acphAccNrSyllParts(picodata_ProcessingUnit this,
+                                     acph_subobj_t *acph,
                                      const picoos_uint16 ind,
                                      picoos_uint8 *s1,
                                      picoos_uint8 *s2) {
     picoos_uint16 pind;
     picoos_uint16 pend;    /* phone string start+len */
     picoos_uint8 afterprim;
+    (void)this;
 
     /* check ind is in valid range */
     if (ind >= acph->headxLen) {
@@ -681,8 +686,8 @@ static picoos_uint8 acphAccNrSyllParts(register picodata_ProcessingUnit this,
 }
 
 
-static picoos_uint8 acphAccGetNrsRight(register picodata_ProcessingUnit this,
-                                     register acph_subobj_t *acph,
+static picoos_uint8 acphAccGetNrsRight(picodata_ProcessingUnit this,
+                                     acph_subobj_t *acph,
                                      const picoos_uint16 ind,
                                      picoos_uint16 *nrwordsfol,
                                      picoos_uint16 *nrsyllsfol,
@@ -691,6 +696,7 @@ static picoos_uint8 acphAccGetNrsRight(register picodata_ProcessingUnit this,
     picoos_uint16 i;
     picoos_uint8 s1;
     picoos_uint8 s2;
+    (void)this;
 
     if (!acphAccNrSyllParts(this, acph, ind, &s1, &s2)) {
         return FALSE;
@@ -729,8 +735,8 @@ static picoos_uint8 acphAccGetNrsRight(register picodata_ProcessingUnit this,
 }
 
 
-static picoos_uint8 acphAccGetNrsLeft(register picodata_ProcessingUnit this,
-                                    register acph_subobj_t *acph,
+static picoos_uint8 acphAccGetNrsLeft(picodata_ProcessingUnit this,
+                                    acph_subobj_t *acph,
                                     const picoos_uint16 ind,
                                     picoos_uint16 *nrwordspre,
                                     picoos_uint16 *nrsyllspre) {
@@ -764,11 +770,12 @@ static picoos_uint8 acphAccGetNrsLeft(register picodata_ProcessingUnit this,
 
 
 /* return TRUE if wordphon contains no stress, FALSE otherwise */
-static picoos_uint8 acphIsWordWithoutStress(register picodata_ProcessingUnit this,
-                                          register acph_subobj_t *acph,
+static picoos_uint8 acphIsWordWithoutStress(picodata_ProcessingUnit this,
+                                          acph_subobj_t *acph,
                                           const picoos_uint16 ind) {
     picoos_uint8 i;
     picoos_uint16 pos;
+    (void)this;
 
     pos = acph->headx[ind].cind;
     for (i = 0; i < acph->headx[ind].head.len; i++) {
@@ -1044,7 +1051,7 @@ FEED | putItems  0  0 0 -m-n  +m  1   | BUSY -> INIT    (put items)
 FEED | putItems  0  0 0 -d-d  +d      | OUT_FULL        (put some items)
 */
 
-static picodata_step_result_t acphStep(register picodata_ProcessingUnit this,
+static picodata_step_result_t acphStep(picodata_ProcessingUnit this,
                                      picoos_int16 mode,
                                      picoos_uint16 *numBytesOutput) {
     register acph_subobj_t *acph;
@@ -1059,7 +1066,7 @@ static picodata_step_result_t acphStep(register picodata_ProcessingUnit this,
         return PICODATA_PU_ERROR;
     }
     acph = (acph_subobj_t *) this->subObj;
-    mode = mode;        /* avoid warning "var not used in this function"*/
+    (void)mode;        /* avoid warning "var not used in this function"*/
     *numBytesOutput = 0;
     while (1) { /* exit via return */
         PICODBG_DEBUG(("doing state %i, hLen|c1Len: %d|%d",

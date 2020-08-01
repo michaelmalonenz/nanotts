@@ -158,10 +158,7 @@ picoos_char *picokdbg_getPhoneSym(const picokdbg_Dbg this,
 
 /* To prevent warning about "translation unit is empty" when
    diagnostic output is disabled. */
-static void picokdbg_dummy(void) {
-    picokdbg_dummy();
-}
-
+void picokdbg_dummy(void) {}
 
 #endif /* defined(PICO_DEBUG) */
 

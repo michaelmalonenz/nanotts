@@ -413,7 +413,7 @@ void *picopal_mpr_alloc(picopal_objsize_t size)
        function on UNIX systems is pvalloc */
     return NULL;
 #endif
-    size = size;        /* avoid warning "var not used in this function"*/
+    (void)size;        /* avoid warning "var not used in this function"*/
 
 }
 
@@ -449,9 +449,9 @@ pico_status_t picopal_mpr_protect(void *addr, picopal_objsize_t len, picopal_int
     }
 #else
     /* not yet implemented for other platforms */
-    addr = addr;        /* avoid warning "var not used in this function"*/
-    len = len;            /* avoid warning "var not used in this function"*/
-    prot = prot;        /* avoid warning "var not used in this function"*/
+    (void)addr;        /* avoid warning "var not used in this function"*/
+    (void)len;            /* avoid warning "var not used in this function"*/
+    (void)prot;        /* avoid warning "var not used in this function"*/
 
 #endif
     return status;

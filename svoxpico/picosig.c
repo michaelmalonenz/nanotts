@@ -388,7 +388,7 @@ static pico_status_t sigProcess(register picodata_ProcessingUnit this,
 
     sig_subObj = (sig_subobj_t *) this->subObj;
 
-    numinb = numinb; /* avoid warning "var not used in this function"*/
+    (void)numinb; /* avoid warning "var not used in this function"*/
 
     /*defaults to 0 for output bytes*/
     *numoutb = 0;
@@ -759,7 +759,7 @@ static picodata_step_result_t sigStep(register picodata_ProcessingUnit this,
     /*Init number of output bytes*/
     *numBytesOutput = 0;
 
-    mode = mode; /* avoid warning "var not used in this function" */
+    (void)mode; /* avoid warning "var not used in this function" */
 
     while (1) { /* exit via return */
 

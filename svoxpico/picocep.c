@@ -373,6 +373,7 @@ static pico_status_t cepInitialize(register picodata_ProcessingUnit this, picoos
  */
 static pico_status_t cepTerminate(register picodata_ProcessingUnit this)
 {
+    (void)this;
     return PICO_OK;
 }
 
@@ -389,7 +390,7 @@ static pico_status_t cepSubObjDeallocate(register picodata_ProcessingUnit this,
         picoos_MemoryManager mm)
 {
 
-    mm = mm; /* avoid warning "var not used in this function"*/
+    (void)mm; /* avoid warning "var not used in this function"*/
 #if defined(PICO_DEVEL_MODE)
     printf("number of long mult is %d, number of short mult is %i\n",numlongmult,numshortmult);
 #else
@@ -1492,7 +1493,7 @@ static picodata_step_result_t cepStep(register picodata_ProcessingUnit this,
         return PICODATA_PU_ERROR;
     }
     cep = (cep_subobj_t *) this->subObj;
-    mode = mode; /* avoid warning "var not used in this function"*/
+    (void)mode; /* avoid warning "var not used in this function"*/
 
     /*Init number of output bytes*/
     *numBytesOutput = 0;

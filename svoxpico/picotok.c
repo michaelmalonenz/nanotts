@@ -441,7 +441,7 @@ static picoos_int32 tok_putToUtf (tok_subobj_t * tok, picoos_uchar ch)
             tok->utflen = 0;
         }
         (tok->utfpos)++;
-        if ((tok->utfpos == tok->utflen)) {
+        if (tok->utfpos == tok->utflen) {
             if ((tok->utfpos < PICOBASE_UTF8_MAXLEN)) {
                 tok->utf[tok->utfpos] = 0;
             }
@@ -1339,7 +1339,7 @@ static void tok_treatChar (picodata_ProcessingUnit this, tok_subobj_t * tok, pic
             }
             if ((tok->utf[tok->utfpos-1] > (picoos_uchar)' ')) {
                 tok->nrEOL = 0;
-            } else if ((tok->utf[tok->utfpos-1] == EOL)) {
+            } else if (tok->utf[tok->utfpos-1] == EOL) {
                 tok->nrEOL++;
             }
             if (markupHandling && (tok->markupState != MSNotInMarkup)) {
@@ -1492,7 +1492,7 @@ static pico_status_t tokSubObjDeallocate(register picodata_ProcessingUnit this,
     if (NULL != this) {
         picoos_deallocate(this->common->mm, (void *) &this->subObj);
     }
-    mm = mm;        /* avoid warning "var not used in this function"*/
+    (void)mm;        /* avoid warning "var not used in this function"*/
     return PICO_OK;
 }
 
@@ -1539,7 +1539,7 @@ picodata_step_result_t tokStep(register picodata_ProcessingUnit this,
     }
     tok = (tok_subobj_t *) this->subObj;
 
-    mode = mode;        /* avoid warning "var not used in this function"*/
+    (void)mode;        /* avoid warning "var not used in this function"*/
 
     *numBytesOutput = 0;
     while (1) { /* exit via return */

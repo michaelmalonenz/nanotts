@@ -283,7 +283,7 @@ extern picokpr_VarStrPtr picokpr_getVarStrPtr(picokpr_Preproc preproc, picokpr_S
 extern picoos_bool picokpr_isEqual (picokpr_Preproc preproc, picoos_uchar str[], picoos_int32 len__9, picokpr_StrArrOffset str2)
 {
     picokpr_VarStrPtr lstrp;
-    len__9 = len__9;        /*PP 13.10.08 : fix warning "var not used in this function"*/
+    (void)len__9;        /*PP 13.10.08 : fix warning "var not used in this function"*/
     lstrp = (picokpr_VarStrPtr)&((kpr_SubObj)preproc)->rStrArr[str2];
     return picoos_strcmp((picoos_char*)lstrp,(picoos_char*)str) == 0;
 }
@@ -293,7 +293,7 @@ extern picoos_bool picokpr_isEqual (picokpr_Preproc preproc, picoos_uchar str[],
 extern picoos_bool picokpr_isEqualHead (picokpr_Preproc preproc, picoos_uchar str[], picoos_int32 len__10, picokpr_StrArrOffset head)
 {
     picokpr_VarStrPtr lstrp;
-    len__10 = len__10;        /*PP 13.10.08 : fix warning "var not used in this function"*/
+    (void)len__10;        /*PP 13.10.08 : fix warning "var not used in this function"*/
     lstrp = (picokpr_VarStrPtr)&((kpr_SubObj)preproc)->rStrArr[head];
     return (picoos_strstr((picoos_char*)str, (picoos_char*)lstrp) == (picoos_char*)str);
 }
@@ -303,7 +303,7 @@ extern picoos_bool picokpr_isEqualHead (picokpr_Preproc preproc, picoos_uchar st
 extern picoos_bool picokpr_isEqualMid (picokpr_Preproc preproc, picoos_uchar str[], picoos_int32 len__11, picokpr_StrArrOffset mid)
 {
     picokpr_VarStrPtr lstrp;
-    len__11 = len__11;        /*PP 13.10.08 : fix warning "var not used in this function"*/
+    (void)len__11;        /*PP 13.10.08 : fix warning "var not used in this function"*/
     lstrp = (picokpr_VarStrPtr)(void *) &((kpr_SubObj)preproc)->rStrArr[mid];
     return (picoos_strstr((picoos_char*)str, (picoos_char*)lstrp) != NULL);
 }
@@ -314,7 +314,7 @@ extern picoos_bool picokpr_isEqualTail (picokpr_Preproc preproc, picoos_uchar st
 {
     picoos_int32 lstart;
     picokpr_VarStrPtr lstrp;
-    len__12 = len__12;        /* avoid warning "var not used in this function"*/
+    (void)len__12;        /* avoid warning "var not used in this function"*/
     lstrp = (picokpr_VarStrPtr)&((kpr_SubObj)preproc)->rStrArr[tail];
     lstart = picoos_strlen((picoos_char*)str) - picoos_strlen((picoos_char*)lstrp);
     if (lstart >= 0) {

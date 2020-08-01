@@ -1201,7 +1201,7 @@ static picodata_step_result_t saStep(register picodata_ProcessingUnit this,
         return PICODATA_PU_ERROR;
     }
     sa = (sa_subobj_t *) this->subObj;
-    mode = mode;        /* avoid warning "var not used in this function"*/
+    (void)mode;        /* avoid warning "var not used in this function"*/
     *numBytesOutput = 0;
     while (1) { /* exit via return */
         PICODBG_DEBUG(("doing state %i, hLen|c1Len|c2Len: %d|%d|%d",

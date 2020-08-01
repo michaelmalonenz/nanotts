@@ -268,7 +268,7 @@ static pico_status_t ctrlSubObjDeallocate(register picodata_ProcessingUnit this,
         return PICO_ERR_OTHER;
     }
     ctrl = (ctrl_subobj_t *) this->subObj;
-    mm = mm;        /* fix warning "var not used in this function"*/
+    (void)mm;        /* fix warning "var not used in this function"*/
     /* deallocate members (procCbOut and procUnit) */
     for (i = ctrl->numProcUnits-1; i >= 0; i--) {
         picodata_disposeProcessingUnit(this->common->mm,&ctrl->procUnit[i]);
@@ -292,9 +292,8 @@ static pico_status_t ctrlSubObjDeallocate(register picodata_ProcessingUnit this,
  * @callgraph
  * @callergraph
  */
-static pico_status_t ctrlAddPU(register picodata_ProcessingUnit this,
+static pico_status_t ctrlAddPU(picodata_ProcessingUnit this,
         picodata_putype_t puType,
-        picoos_bool levelAwareCbOut,
         picoos_bool last)
 {
     picoos_uint16 bufSize;
@@ -449,15 +448,15 @@ picodata_ProcessingUnit picoctrl_newControl(picoos_MemoryManager mm,
     ctrl->numProcUnits = 0;
 
     if (
-            (PICO_OK == ctrlAddPU(this,PICODATA_PUTYPE_TOK, FALSE, /*last*/FALSE)) &&
-            (PICO_OK == ctrlAddPU(this,PICODATA_PUTYPE_PR, FALSE, FALSE)) &&
-            (PICO_OK == ctrlAddPU(this,PICODATA_PUTYPE_WA, FALSE, FALSE)) &&
-            (PICO_OK == ctrlAddPU(this,PICODATA_PUTYPE_SA, FALSE, FALSE)) &&
-            (PICO_OK == ctrlAddPU(this,PICODATA_PUTYPE_ACPH, FALSE, FALSE)) &&
-            (PICO_OK == ctrlAddPU(this,PICODATA_PUTYPE_SPHO, FALSE, FALSE)) &&
-            (PICO_OK == ctrlAddPU(this,PICODATA_PUTYPE_PAM, FALSE, FALSE)) &&
-            (PICO_OK == ctrlAddPU(this,PICODATA_PUTYPE_CEP, FALSE, FALSE)) &&
-            (PICO_OK == ctrlAddPU(this,PICODATA_PUTYPE_SIG, FALSE, TRUE))
+            (PICO_OK == ctrlAddPU(this,PICODATA_PUTYPE_TOK, /*last*/FALSE)) &&
+            (PICO_OK == ctrlAddPU(this,PICODATA_PUTYPE_PR, FALSE)) &&
+            (PICO_OK == ctrlAddPU(this,PICODATA_PUTYPE_WA, FALSE)) &&
+            (PICO_OK == ctrlAddPU(this,PICODATA_PUTYPE_SA, FALSE)) &&
+            (PICO_OK == ctrlAddPU(this,PICODATA_PUTYPE_ACPH, FALSE)) &&
+            (PICO_OK == ctrlAddPU(this,PICODATA_PUTYPE_SPHO, FALSE)) &&
+            (PICO_OK == ctrlAddPU(this,PICODATA_PUTYPE_PAM, FALSE)) &&
+            (PICO_OK == ctrlAddPU(this,PICODATA_PUTYPE_CEP, FALSE)) &&
+            (PICO_OK == ctrlAddPU(this,PICODATA_PUTYPE_SIG, TRUE))
          ) {
 
         /* we don't call ctrlInitialize here because ctrlAddPU does initialize the PUs allready and the only thing

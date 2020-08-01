@@ -402,6 +402,7 @@ static pico_status_t kdtDtCheck(register picoknow_KnowledgeBase this,
                                 kdt_nrinpmaptables_t nrinpmt,
                                 kdt_nroutmaptables_t nroutmt,
                                 kdt_mttype_t mttype) {
+    (void)this;
     /* check nr attributes */
     /* check nr inpmaptables */
     /* check nr outmaptables */

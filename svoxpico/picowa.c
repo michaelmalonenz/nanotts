@@ -152,7 +152,7 @@ static pico_status_t waSubObjDeallocate(register picodata_ProcessingUnit this,
     if (NULL != this) {
         picoos_deallocate(this->common->mm, (void *) &this->subObj);
     }
-    mm = mm;        /* avoid warning "var not used in this function"*/
+    (void)mm;        /* avoid warning "var not used in this function"*/
     return PICO_OK;
 }
 
@@ -384,7 +384,7 @@ static picodata_step_result_t waStep(register picodata_ProcessingUnit this,
         return PICODATA_PU_ERROR;
     }
     wa = (wa_subobj_t *) this->subObj;
-    mode = mode;        /* avoid warning "var not used in this function"*/
+    (void)mode;        /* avoid warning "var not used in this function"*/
     *numBytesOutput = 0;
     while (1) { /* exit via return */
         PICODBG_DEBUG(("doing state %i, inLen: %d, outLen: %d",

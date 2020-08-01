@@ -743,7 +743,7 @@ static pico_status_t pam_subobj_deallocate(register picodata_ProcessingUnit this
 
     if (NULL != this) {
         pam = (pam_subobj_t *) this->subObj;
-        mm = mm; /* avoid warning "var not used in this function"*/
+        (void)mm; /* avoid warning "var not used in this function"*/
         /*-----------------------------------------------------------------
          * Memory de-allocations
          * ------------------------------------------------------------------*/
@@ -2333,7 +2333,7 @@ static picodata_step_result_t pam_step(register picodata_ProcessingUnit this,
         return PICODATA_PU_ERROR;
     }
     pam = (pam_subobj_t *) this->subObj;
-    mode = mode; /* avoid warning "var not used in this function"*/
+    (void)mode; /* avoid warning "var not used in this function"*/
     /*Init number of output bytes*/
     *numBytesOutput = 0;
 
@@ -2598,7 +2598,7 @@ static picodata_step_result_t pam_step(register picodata_ProcessingUnit this,
                          we get here when     pam->nCurrSyllable==0 and
                          no more items to be processed before the syllable
                          */
-                        sResult = sResult;
+                        (void)sResult;
                     }
                 }
 
@@ -2890,7 +2890,7 @@ static picoos_uint8 pam_map_sentence_type(picoos_uint8 iteminfo1,
         default:
             return PICOPAM_DECLARATIVE;
     }
-    iteminfo1 = iteminfo1; /* avoid warning "var not used in this function"*/
+    (void)iteminfo1; /* avoid warning "var not used in this function"*/
     return PICOPAM_DECLARATIVE;
 }/*pam_map_sentence_type */
 
@@ -3533,7 +3533,7 @@ static pico_status_t pam_process_event_feature(
                         pam->d2_syllable_in_word = 0;
                         /*pam->d2_current_primary_phrase_word++;*/
                     }
-                    if ((event_type == PICOPAM_EVENT_P_BOUND)) {
+                    if (event_type == PICOPAM_EVENT_P_BOUND) {
                         pam->d2_current_primary_phrase_word = 0;
                     }
                     break;

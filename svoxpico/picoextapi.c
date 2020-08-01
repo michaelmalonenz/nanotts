@@ -113,7 +113,7 @@ PICO_FUNC picoext_setTraceFilterFN(
     if (NULL == system) {
         return PICO_ERR_NULLPTR_ACCESS;
     }
-    name = name;        /*PP 13.10.08 : fix warning "var not used in this function"*/
+    (void)name;        /*PP 13.10.08 : fix warning "var not used in this function"*/
     PICODBG_SET_LOG_FILTERFN((const char *)name);
     return PICO_OK;
 }
@@ -127,7 +127,7 @@ PICO_FUNC picoext_setLogFile(
     if (NULL == system) {
         return PICO_ERR_NULLPTR_ACCESS;
     }
-    name = name;        /*PP 13.10.08 : fix warning "var not used in this function"*/
+    (void)name;        /*PP 13.10.08 : fix warning "var not used in this function"*/
     PICODBG_SET_LOG_FILE((const char *) name);
     return PICO_OK;
 }

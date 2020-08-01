@@ -493,7 +493,7 @@ static picoos_uint16 sphoGetSylAccent(register spho_subobj_t *spho,
 {
     PICODBG_ASSERT(sylStress <= 2);
 
-    spho = spho;        /* avoid warning "var not used in this function"*/
+    (void)spho;        /* avoid warning "var not used in this function"*/
 
     switch (sylStress) {
         case 0: /* non-stressed syllable gets no prominence */
@@ -952,7 +952,7 @@ static picodata_step_result_t sphoStep(register picodata_ProcessingUnit this,
     }
     spho = (spho_subobj_t *) this->subObj;
 
-    mode = mode;        /* avoid warning "var not used in this function"*/
+    (void)mode;        /* avoid warning "var not used in this function"*/
 
     *numBytesOutput = 0;
     while (1) { /* exit via return */

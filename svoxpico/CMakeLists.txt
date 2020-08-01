@@ -33,5 +33,5 @@ set(SOURCES picoacph.c
 
 
 add_library(ttspico STATIC ${SOURCES})
-
+target_compile_options(ttspico PRIVATE -Wno-unused-parameter)
 target_include_directories(ttspico INTERFACE "${CMAKE_CURRENT_LIST_DIR}")

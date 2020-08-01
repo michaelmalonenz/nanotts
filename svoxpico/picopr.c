@@ -433,7 +433,7 @@ static void pr_DEALLOCATE (picodata_ProcessingUnit this, pr_MemTypes mType, void
 static void pr_getMemState(picodata_ProcessingUnit this, pr_MemTypes mType, picoos_uint32 *lmemState)
 {
     pr_subobj_t * pr = (pr_subobj_t *) this->subObj;
-    mType = mType;        /* avoid warning "var not used in this function"*/
+    (void)mType;        /* avoid warning "var not used in this function"*/
     *lmemState = pr->workMemTop;
 }
 
@@ -445,7 +445,7 @@ static void pr_resetMemState(picodata_ProcessingUnit this, pr_MemTypes mType, pi
 #if PR_TRACE_MEM
     PICODBG_INFO(("pr_WorkMem: -%i, tot:%i of %i", pr->workMemTop-lmemState, lmemState, PR_WORK_MEM_SIZE));
 #endif
-    mType = mType;        /* avoid warning "var not used in this function"*/
+    (void)mType;        /* avoid warning "var not used in this function"*/
     pr->workMemTop = lmemState;
 }
 
@@ -626,6 +626,7 @@ static picoos_int32 tok_tokenDigitStrToInt (picodata_ProcessingUnit this, pr_sub
     picoos_int32 val;
     picoos_uint32 n;
     picobase_utf8char utf8char;
+    (void)this;
 
     val = 0;
     i = 0;
@@ -1000,9 +1001,9 @@ static picoos_uint32 pr_copyData(picoos_uint8 * dest, const picoos_uint8 * src, 
     return i;
 }
 
-
 static void pr_initItem(picodata_ProcessingUnit this, pr_ioItem * item)
 {
+    (void)this;
     item->next = NULL;
     item->val = 0;
     item->head.len = 0;
@@ -1755,7 +1756,7 @@ static void pr_getOutputItemList (picodata_ProcessingUnit this,
                                 lid = picoktab_graphOffset(pr->graphs,pr->tmpItem.data);
                                 if (lid > 0) {
                                     if (picoktab_getIntPropTokenType(pr->graphs, lid, &ltype)) {
-                                        if ((ltype == PICODATA_ITEMINFO1_TOKTYPE_LETTERV)/* || (ltype == PICODATA_ITEMINFO1_TOKTYPE_DIGIT)*/) {
+                                        if (ltype == PICODATA_ITEMINFO1_TOKTYPE_LETTERV) {
                                             pr->tmpItem.head.len = pr_strcat(pr->tmpItem.data,(picoos_uchar*)SPEC_CHAR);
                                         }
                                     }
@@ -2085,7 +2086,7 @@ static void pr_getOutput (picodata_ProcessingUnit this, pr_subobj_t * pr,
                     lvar->last = lit;
                     lfirst = FALSE;
                 } else {
-                    if ((pr->ritems[with__0->ritemid+1]->head.info1 == PICODATA_ITEMINFO1_TOKTYPE_SPACE)) {
+                    if (pr->ritems[with__0->ritemid+1]->head.info1 == PICODATA_ITEMINFO1_TOKTYPE_SPACE) {
                         lvar->last->head.len = pr_strcat(lvar->last->data,(picoos_uchar*)"_");
                     } else {
                         lvar->last->head.len = pr_strcat(lvar->last->data,pr->ritems[with__0->ritemid+1]->data);
@@ -2513,9 +2514,9 @@ static pr_MatchState pr_matchMultiToken (picodata_ProcessingUnit this, pr_subobj
     } else {
         return PR_MSNotMatched;
     }
-    pr = pr;        /* avoid warning "var not used in this function"*/
-    npset = npset;    /* avoid warning "var not used in this function"*/
-    wpset = wpset;    /* avoid warning "var not used in this function"*/
+    (void)pr;        /* avoid warning "var not used in this function"*/
+    (void)npset;    /* avoid warning "var not used in this function"*/
+    (void)wpset;    /* avoid warning "var not used in this function"*/
 
 }
 
@@ -2764,8 +2765,8 @@ static pr_MatchState pr_matchTokensLetter (picodata_ProcessingUnit this, pr_subo
 static pr_MatchState pr_matchTokensBegin (picodata_ProcessingUnit this, pr_subobj_t * pr,
                                           picokpr_TokSetNP npset, picokpr_TokSetWP wpset)
 {
-    npset = npset;        /* avoid warning "var not used in this function"*/
-    wpset = wpset;        /* avoid warning "var not used in this function"*/
+    (void)npset;        /* avoid warning "var not used in this function"*/
+    (void)wpset;        /* avoid warning "var not used in this function"*/
     if ((PR_TSE_MASK_BEGIN &picokpr_getTokSetNP(pr->ractpath.rele[pr->ractpath.rlen - 1].rnetwork, pr->ractpath.rele[pr->ractpath.rlen - 1].rtok)) != 0) {
         return PR_MSMatched;
     } else {
@@ -2778,8 +2779,8 @@ static pr_MatchState pr_matchTokensBegin (picodata_ProcessingUnit this, pr_subob
 static pr_MatchState pr_matchTokensEnd (picodata_ProcessingUnit this, pr_subobj_t * pr,
                                         picokpr_TokSetNP npset, picokpr_TokSetWP wpset)
 {
-    npset = npset;        /* avoid warning "var not used in this function"*/
-    wpset = wpset;        /* avoid warning "var not used in this function"*/
+    (void)npset;        /* avoid warning "var not used in this function"*/
+    (void)wpset;        /* avoid warning "var not used in this function"*/
     if ((PR_TSE_MASK_END &picokpr_getTokSetNP(pr->ractpath.rele[pr->ractpath.rlen - 1].rnetwork, pr->ractpath.rele[pr->ractpath.rlen - 1].rtok)) != 0) {
         return PR_MSMatched;
     } else {
@@ -2901,7 +2902,7 @@ void pr_processToken (picodata_ProcessingUnit this, pr_subobj_t * pr)
 
     do {
         pr->rgState = PR_GSContinue;
-        if ((pr->ractpath.rlen == 0)) {
+        if (pr->ractpath.rlen == 0) {
             if (pr_getTopLevelToken(this, pr, FALSE)) {
                 pr->rgState = PR_GSContinue;
             } else if (pr->rbestpath.rlen == 0) {
@@ -3257,6 +3258,7 @@ pico_status_t prInitialize(register picodata_ProcessingUnit this, picoos_int32 r
 
 pico_status_t prTerminate(register picodata_ProcessingUnit this)
 {
+    (void)this;
     return PICO_OK;
 }
 
@@ -3269,7 +3271,7 @@ pico_status_t prSubObjDeallocate(register picodata_ProcessingUnit this,
 
     if (NULL != this) {
         pr = (pr_subobj_t *) this->subObj;
-        mm = mm;        /* avoid warning "var not used in this function"*/
+        (void)mm;        /* avoid warning "var not used in this function"*/
         PICODBG_INFO(("max pr_WorkMem: %i of %i", pr->maxWorkMemTop, PR_WORK_MEM_SIZE));
         PICODBG_INFO(("max pr_DynMem: %i of %i", pr->maxDynMemSize, PR_DYN_MEM_SIZE));
 
@@ -3351,7 +3353,7 @@ picodata_step_result_t prStep(register picodata_ProcessingUnit this,
 
     if (pr->outOfMemory) return PICODATA_PU_ERROR;
 
-    mode = mode;        /* avoid warning "var not used in this function"*/
+    (void)mode;        /* avoid warning "var not used in this function"*/
     pr->nrIterations = PR_MAX_NR_ITERATIONS;
 
     *numBytesOutput = 0;

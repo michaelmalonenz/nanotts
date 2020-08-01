@@ -530,7 +530,7 @@ void * picoos_allocate(picoos_MemoryManager this,
     if (c == NULL) {
         return NULL;
     }
-    if ((c->size == (picoos_ptrdiff_t) cellSize)) {
+    if (c->size == (picoos_ptrdiff_t) cellSize) {
         c->prevFree->nextFree = c->nextFree;
         c->nextFree->prevFree = c->prevFree;
     } else {
@@ -1104,8 +1104,8 @@ static picoos_bool LSetPos(picoos_File f, unsigned int pos)
 
     picoos_bool done;
 
-    if ((f != NULL)) {
-        if ((pos == f->lPos)) {
+    if (f != NULL) {
+        if (pos == f->lPos) {
             done = TRUE;
         } else {
             done = (PICO_OK == picopal_fseek(f->nf, pos, PICOPAL_SEEK_SET));
@@ -1122,7 +1122,7 @@ static picoos_bool LSetPos(picoos_File f, unsigned int pos)
 static picoos_bool LGetPos(picoos_File f, picoos_uint32 * pos)
 {
     picoos_bool done = TRUE;
-    if ((f != NULL)) {
+    if (f != NULL) {
         (*pos) = f->lPos;
     } else {
         done = FALSE;
@@ -1136,7 +1136,7 @@ static picoos_bool LEof(picoos_File f)
 {
     picoos_bool isEof;
 
-    if ((f != NULL)) {
+    if (f != NULL) {
         isEof = picopal_feof(f->nf);
     } else {
         isEof = TRUE;
@@ -1618,10 +1618,10 @@ extern picoos_bool picoos_sdfGetSamples (
                 }
                 (*nrSamples) = 0;
             } else {
-                if (((start + (*nrSamples)) > sdFile->nrFileSamples)) {
+                if ((start + (*nrSamples)) > sdFile->nrFileSamples) {
                     (*nrSamples) = (sdFile->nrFileSamples - start);
                 }
-                if ((sdFile->enc == PICOOS_ENC_LIN)) {
+                if (sdFile->enc == PICOOS_ENC_LIN) {
                     b = 2;
                 } else {
                     b = 1;
@@ -2280,7 +2280,7 @@ void picoos_get_sep_part_str(picoos_char string[],
         }
         part[j] = (picoos_char)NULLC;
         if ((*ind) < stringlen) {
-            if ((string[(*ind)] == sepCh)) {
+            if (string[(*ind)] == sepCh) {
                 (*ind)++; /* skip separator character */
             } else if (string[(*ind)] == (picoos_char)NULLC) {
                 /* reached end of input; set ind to stringlen so that no

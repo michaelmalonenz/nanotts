@@ -481,7 +481,7 @@ static pico_status_t picorsrc_getKbList(picorsrc_ResourceManager this,
     picoknow_KnowledgeBase kb;
 
     *kbList = NULL;
-    datalen = datalen;
+    (void)datalen;
     /* read number of fields */
     numKbs = data[curpos++];
     PICODBG_DEBUG(("number of kbs (unrestricted) = %i",numKbs));
