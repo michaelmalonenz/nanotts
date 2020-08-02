@@ -5,6 +5,7 @@ set(SOURCES
     lowest_file_number.cpp
     main.cpp
     mmfile.cpp
+    Nano.cpp
     Player_Alsa.cpp
     StreamHandler.cpp
     wav.cpp

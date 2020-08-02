@@ -1,7 +1,34 @@
+/* nanotts.cpp
+ *
+ * Copyright (C) 2014 Greg Naughton <greg@naughton.org>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ *    Convert text to .wav using svox text-to-speech system.
+ *    Rewrite of pico2wave.c
+ *
+ */
+
 #include <cstring>
 
 #include "Pico.hpp"
 #include "Listener.hpp"
+
+pads_t Boilerplate::pads[] = {
+    {"speed", "<speed level=\"%d\">", "</speed>", 0},
+    {"pitch", "<pitch level=\"%d\">", "</pitch>", 0},
+    {"volume", "<volume level=\"%d\">", "</volume>", 0}};
+
 
 Pico::Pico() {
     picoSystem              = 0;
