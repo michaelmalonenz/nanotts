@@ -128,8 +128,6 @@ private:
     FILE *in_fp;
     FILE *out_fp;
 
-    char *copy_arg(int);
-
     unsigned char *input_buffer;
     unsigned int input_size;
 
@@ -220,19 +218,6 @@ Nano::~Nano()
         fclose(out_fp);
         out_fp = 0;
     }
-}
-
-// get argument at index, make a copy and return it
-char *Nano::copy_arg(int index)
-{
-    if (index >= my_argc)
-        return 0;
-
-    int len = strlen(my_argv[index]);
-    char *buf = new char[len + 1];
-    memset(buf, 0, len + 1);
-    strcpy(buf, my_argv[index]);
-    return buf;
 }
 
 int Nano::parse_commandline_arguments()
@@ -598,182 +583,14 @@ Boilerplate *Nano::getModifiers()
 }
 //////////////////////////////////////////////////////////////////
 
-/*
-================================================
-    NanoSingleton
-
-    singleton subclass
-================================================
-*/
-class NanoSingleton : public Nano
-{
-public:
-    /**
-     * only method to get singleton handle to this object
-     */
-    static NanoSingleton &instance();
-
-    /**
-     * explicit destruction
-     */
-    static void destroy();
-
-    /**
-     * utility method to pass-through arguments
-     */
-    static void setArgs(int i, char **v);
-
-private:
-    /**
-     * prevent outside construction
-     */
-    NanoSingleton(int, char **);
-
-    /**
-     * prevent compile-time deletion
-     */
-    virtual ~NanoSingleton();
-
-    /**
-     * prevent copy-constructor
-     */
-    NanoSingleton(const NanoSingleton &);
-
-    /**
-     * prevent assignment operator
-     */
-    NanoSingleton &operator=(const NanoSingleton &);
-
-    /**
-     * sole instance of this object; static assures 0 initialization for free
-     */
-    static NanoSingleton *single_instance;
-    static int my_argc;
-    static char **my_argv;
-};
-
-NanoSingleton *NanoSingleton::single_instance;
-int NanoSingleton::my_argc;
-char **NanoSingleton::my_argv;
-
-// implementations
-NanoSingleton &NanoSingleton::instance()
-{
-    if (0 == single_instance)
-    {
-        single_instance = new NanoSingleton(my_argc, my_argv);
-    }
-    return *single_instance;
-}
-
-void NanoSingleton::destroy()
-{
-    if (single_instance)
-    {
-        delete single_instance;
-        single_instance = 0;
-    }
-}
-
-NanoSingleton::NanoSingleton(int i, char **v) : Nano(i, v)
-{
-}
-
-NanoSingleton::~NanoSingleton()
-{
-}
-
-void NanoSingleton::setArgs(int i, char **v)
-{
-    my_argc = i;
-    my_argv = v;
-}
-//////////////////////////////////////////////////////////////////
-
-/**
- * Pico wrapped with singleton
- */
-class PicoSingleton : public Pico
-{
-public:
-    /**
-     * only method to get singleton handle to this object
-     */
-    static PicoSingleton &instance();
-
-    /**
-     * explicit destruction
-     */
-    static void destroy();
-
-private:
-    /**
-     * prevent outside construction
-     */
-    PicoSingleton();
-
-    /**
-     * prevent compile-time deletion
-     */
-    virtual ~PicoSingleton();
-
-    /**
-     * prevent copy-constructor
-     */
-    PicoSingleton(const PicoSingleton &);
-
-    /**
-     * prevent assignment operator
-     */
-    PicoSingleton &operator=(const PicoSingleton &);
-
-    /**
-     * sole instance of this object; static assures 0 initialization for free
-     */
-    static PicoSingleton *single_instance;
-};
-
-PicoSingleton &PicoSingleton::instance()
-{
-    if (0 == single_instance)
-    {
-        single_instance = new PicoSingleton();
-    }
-    return *single_instance;
-}
-
-void PicoSingleton::destroy()
-{
-    if (single_instance)
-    {
-        delete single_instance;
-        single_instance = 0;
-    }
-}
-
-PicoSingleton::PicoSingleton()
-{
-}
-
-PicoSingleton::~PicoSingleton()
-{
-}
-
-PicoSingleton *PicoSingleton::single_instance;
-//////////////////////////////////////////////////////////////////
-
 int main(int argc, char **argv)
 {
-    NanoSingleton::setArgs(argc, argv);
-
-    NanoSingleton &nano = NanoSingleton::instance();
-
+    Nano nano(argc, argv);
     int res;
 
     //
     if ((res = nano.parse_commandline_arguments()) < 0)
     {
-        nano.destroy();
         if (res == -666)
         {
             return 0;
@@ -786,20 +603,17 @@ int main(int argc, char **argv)
     unsigned int length = 0;
     if (nano.ProduceInput(&words, &length) < 0)
     {
-        nano.destroy();
         return 65; // data format error
     }
 
     //
-    PicoSingleton &pico = PicoSingleton::instance();
+    Pico pico;
     pico.setLangFilePath(nano.getLangFilePath().c_str());
     pico.setOutFilename(nano.outFilename().c_str());
 
     if (pico.setVoice(nano.getVoice().c_str()) < 0)
     {
         std::cerr << "set voice failed, with: \"" << nano.getVoice() << "\"" << std::endl;
-        pico.destroy();
-        nano.destroy();
         return 127; // command not found
     }
 
@@ -814,8 +628,6 @@ int main(int argc, char **argv)
     if (pico.initializeSystem() < 0)
     {
         fprintf(stderr, " * problem initializing Svox Pico\n");
-        pico.destroy();
-        nano.destroy();
         return 126; // command found but not executable
     }
 
@@ -829,7 +641,5 @@ int main(int argc, char **argv)
     pico.cleanup();
 
     //
-    pico.destroy();
-    nano.destroy();
     return 0;
 }
