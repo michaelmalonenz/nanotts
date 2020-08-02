@@ -10,11 +10,17 @@ set(SOURCES
     wav.cpp
 )
 
+
 add_executable(nanotts "${SOURCES}")
 
 # for release_version.h
 target_include_directories(nanotts PRIVATE "${CMAKE_CURRENT_LIST_DIR}/..")
 set_property(TARGET nanotts PROPERTY CXX_STANDARD 20)
+
+find_package(ALSA QUIET)
+if (ALSA_FOUND)
+    target_compile_definitions(nanotts PRIVATE -D_USE_ALSA)
+endif()
 
 target_link_libraries(
     nanotts
@@ -22,6 +28,6 @@ target_link_libraries(
         cxxopts::cxxopts
     PUBLIC
         ttspico
-        asound
         fmt
+        ${ALSA_LIBRARIES}
 )
