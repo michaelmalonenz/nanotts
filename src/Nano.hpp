@@ -78,10 +78,10 @@ public:
     int ProduceInput(unsigned char **data, unsigned int *bytes);
     int playOutput();
 
-    const std::string& getVoice();
-    const std::string& getLangFilePath();
+    const std::string &getVoice();
+    const std::string &getLangFilePath();
 
-    const std::string& outFilename() const { return out_filename; }
+    const std::string &outFilename() const { return out_filename; }
 
     Listener<short> *getListener();
 

@@ -29,7 +29,6 @@
 #include "Player_Alsa.h"
 #endif
 
-
 int GetNextLowestFilenameNumber(const char *prefix, const char *suffix, int zeropad);
 
 #define PICO_DEFAULT_SPEED 0.88f

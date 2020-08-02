@@ -52,7 +52,7 @@ int main(int argc, char **argv)
 
     //
     Pico pico;
-    pico.setLangFilePath(nano.getLangFilePath().c_str());
+    pico.setLangFilePath(nano.getLangFilePath());
     pico.setOutFilename(nano.outFilename().c_str());
 
     if (pico.setVoice(nano.getVoice().c_str()) < 0)
