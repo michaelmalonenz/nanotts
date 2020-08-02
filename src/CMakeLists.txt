@@ -14,6 +14,7 @@ add_executable(nanotts "${SOURCES}")
 
 # for release_version.h
 target_include_directories(nanotts PRIVATE "${CMAKE_CURRENT_LIST_DIR}/..")
+set_property(TARGET nanotts PROPERTY CXX_STANDARD 20)
 
 target_link_libraries(
     nanotts
@@ -22,4 +23,5 @@ target_link_libraries(
     PUBLIC
         ttspico
         asound
+        fmt
 )

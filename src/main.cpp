@@ -22,6 +22,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <fmt/format.h>
+#include <iostream>
+#include <string>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -52,10 +55,6 @@ extern "C"
 #define PICO_DEFAULT_PITCH 1.05f
 #define PICO_DEFAULT_VOLUME 1.00f
 
-// searching these paths
-const char *lingware_paths[2] = {"./lang", "/usr/share/pico/lang"};
-
-#define FILE_OUTPUT_PREFIX "nanotts-output-"
 #define FILE_OUTPUT_SUFFIX ".wav"
 #define FILENAME_NUMBERING_LEADING_ZEROS 4
 
@@ -118,15 +117,14 @@ private:
 
     int my_argc;
     char **my_argv;
-    const char *exename;
 
-    char *voice;
-    char *langfiledir;
-    char prefix[256];
+    std::string voice;
+    std::string langfiledir;
+    std::string prefix;
     char suffix[100];
-    char *out_filename;
-    char *in_filename;
-    char *words;
+    std::string out_filename;
+    std::string in_filename;
+    std::string words;
     FILE *in_fp;
     FILE *out_fp;
 
@@ -151,7 +149,6 @@ public:
     Nano(int, char **);
     virtual ~Nano();
 
-    void PrintUsage();
     int parse_commandline_arguments();
     int setup_input_output();
     int verify_input_output();
@@ -159,10 +156,10 @@ public:
     int ProduceInput(unsigned char **data, unsigned int *bytes);
     int playOutput();
 
-    const char *getVoice();
-    const char *getLangFilePath();
+    const std::string& getVoice();
+    const std::string& getLangFilePath();
 
-    const char *outFilename() const { return out_filename; }
+    const std::string& outFilename() const { return out_filename; }
 
     Listener<short> *getListener();
 
@@ -175,15 +172,18 @@ public:
     bool writingWaveFile() { return (out_mode & OUT_SINGLE_FILE) == OUT_SINGLE_FILE; }
 };
 
-Nano::Nano(int i, char **v) : my_argc(i), my_argv(v), listener(this)
+Nano::Nano(int i, char **v) :
+    my_argc(i),
+    my_argv(v),
+    voice(),
+    langfiledir(),
+    prefix(),
+    out_filename(),
+    in_filename(),
+    words(),
+    listener(this)
 {
-    voice = 0;
-    langfiledir = 0;
-    sprintf(prefix, FILE_OUTPUT_PREFIX);
     sprintf(suffix, FILE_OUTPUT_SUFFIX);
-    out_filename = 0;
-    in_filename = 0;
-    words = 0;
     in_fp = 0;
     out_fp = 0;
     input_buffer = 0;
@@ -194,17 +194,6 @@ Nano::Nano(int i, char **v) : my_argc(i), my_argv(v), listener(this)
 
 Nano::~Nano()
 {
-    if (voice)
-        delete[] voice;
-    if (langfiledir)
-        delete[] langfiledir;
-    if (out_filename)
-        delete[] out_filename;
-    if (in_filename)
-        delete[] in_filename;
-    if (words)
-        delete[] words;
-
     if (input_buffer)
     {
         switch (in_mode)
@@ -233,69 +222,6 @@ Nano::~Nano()
     }
 }
 
-void Nano::PrintUsage()
-{
-
-    const char *program = strrchr(my_argv[0], '/');
-    program = !program ? my_argv[0] : program + 1;
-    this->exename = program;
-
-    printf("usage: %s [options]\n", exename);
-
-    char line1[100];
-    char line2[100];
-    char line3[100];
-    char line4[100];
-    memset(line1, 0, sizeof(line1));
-    memset(line2, 0, sizeof(line2));
-    memset(line3, 0, sizeof(line3));
-    memset(line4, 0, sizeof(line4));
-    sprintf(line1, "   %s -f ray_bradbury.txt -o ray_bradbury.wav", exename);
-    sprintf(line2, "   echo \"Mary had a little lamb\" | %s --play", exename);
-    sprintf(line3, "   %s -i \"Once upon a midnight dreary\" -v en-US --speed 0.8 --pitch 1.8 -w -p", exename);
-    sprintf(line4, "   echo \"Brave Ulysses\" | %s -c | play -r 16k -L -t raw -e signed -b 16 -c 1 -", exename);
-
-    struct help
-    {
-        const char *arg;
-        const char *desc;
-    } help_lines[] = {
-        {"   -h, --help", "Displays this help. (overrides other input)"},
-        {"   -v, --voice <voice>", "Select voice. (Default: en-GB)"},
-        {"   -l <directory>", "Set Lingware voices directory. (defaults: \"./lang\", \"/usr/share/pico/lang/\")"},
-        {"   -i <text>", "Input. (Text must be correctly quoted)"},
-        {"   -f <filename>", "Filename to read input from"},
-        {"   -o <filename>", "Write output to WAV/PCM file (enables WAV output)"},
-        {"   -w, --wav ", "Write output to WAV file, will generate filename if '-o' option not provided"},
-        {"   -p, --play ", "Play audio output"},
-        {"   -m, --no-play", "do NOT play output on PC's soundcard"},
-        {"   -c ", "Send raw PCM output to stdout"},
-        {"   --prefix", "Set the file prefix (eg. \"MyRecording-\")."},
-        {"", "Generated files will be auto-numbered."},
-        {"", "Good for running multiple times with different inputs"},
-        {"   --speed <0.2-5.0>", "change voice speed"},
-        {"   --pitch <0.5-2.0>", "change voice pitch"},
-        {"   --volume <0.0-5.0>", "change voice volume (>1.0 may result in degraded quality)"},
-        {"   --version", "Displays version information about this program"},
-        //        { "  --files", "set multiple input files" },
-        {" ", " "},
-        {" ", " "},
-        {"Examples: ", " "},
-        {line1, " "},
-        {line2, " "},
-        {line3, " "},
-        {line4, " "},
-        {" ", " "},
-    };
-
-    unsigned long long int size = *(&help_lines + 1) - help_lines;
-
-    for (unsigned int i = 0; i < size; i++)
-    {
-        printf("%-24s%s\n", help_lines[i].arg, help_lines[i].desc);
-    }
-}
-
 // get argument at index, make a copy and return it
 char *Nano::copy_arg(int index)
 {
@@ -315,7 +241,7 @@ int Nano::parse_commandline_arguments()
     cxxopts::Options options("NanoTTS", "A flexible text-to-speech engine");
     options.add_options()
         ("h,help", "Print this help")
-        ("v,version", "Print the version")
+        ("version", "Print the version")
         ("i,input", "input text argument", cxxopts::value<std::string>())
         ("f,file", "use the given text file as input", cxxopts::value<std::string>())
         ("o,output", "Write output to WAV/PCM file (enables WAV output)", cxxopts::value<std::string>())
@@ -323,16 +249,13 @@ int Nano::parse_commandline_arguments()
         ("p,play", "Play audio output")
         ("m,no-play", "do NOT play output on PC's soundcard")
         ("c,stdout", "Send raw PCM output to stdout")
-        ("x,prefix", "Set the file prefix (e.g. \"MyRecording-\").")
-        // {"", "Generated files will be auto-numbered."},
-        // {"", "Good for running multiple times with different inputs"},
-        ("speed", "change voice speed <0.2-5.0>", cxxopts::value<float>())
-        ("pitch", "change the voice pitch <0.5-2.0>", cxxopts::value<float>())
-        ("volume", "change the voice volume <0.0-5.0> (>1.0 may result in degraded quality)", cxxopts::value<float>())
-        // {"Possible Voices: ", " "},
-        // {"   en-US, en-GB, de-DE, es-ES, fr-FR, it-IT", " "},
+        ("x,prefix", "Set the file prefix (e.g. 'MyRecording'). Generated files will be auto-numbered. Good for running multiple times with different inputs", cxxopts::value<std::string>()->default_value("nanotts-output-"))
+        ("speed", "change voice speed <0.2-5.0>", cxxopts::value<float>()->default_value("0.88"))
+        ("pitch", "change the voice pitch <0.5-2.0>", cxxopts::value<float>()->default_value("1.05"))
+        ("volume", "change the voice volume <0.0-5.0> (>1.0 may result in degraded quality)", cxxopts::value<float>()->default_value("1.00"))
+        ("v,voice", "Set the voice to use.  Possible voices: en-US, en-GB, de-DE, es-ES, fr-FR, it-IT", cxxopts::value<std::string>()->default_value("en-GB"))
+        ("l,lang-file-dir", "the directory containing the language files", cxxopts::value<std::string>()->default_value("./lang"))
         ;
-#define WARN_UNMATCHED_INPUTS()
     auto args = options.parse(my_argc, my_argv);
     
     if (args["h"].count() > 0)
@@ -341,66 +264,101 @@ int Nano::parse_commandline_arguments()
         exit(-1);
     }
 
-    if (args["v"].count() > 0)
+    if (args["version"].count() > 0)
     {
         std::cout << VERSIONED_NAME << std::endl;
         exit(-666);
     }
+
+    modifiers.setSpeed(args["speed"].as<float>());
+    modifiers.setPitch(args["pitch"].as<float>());
+    modifiers.setVolume(args["volume"].as<float>());
+
     // inputs and especially output are explicit
     in_mode = IN_NOT_SET;
     out_mode = OUT_NOT_SET;
-    
+
+    voice = args["voice"].as<std::string>();
+    langfiledir = args["l"].as<std::string>();
+
+    // need to validate the langfilefile dir.  Possibly use install dir for pico?
+    // "/usr/share/pico/lang"
+
+    if (args["f"].count() > 0)
+    {
+        if (in_mode != IN_NOT_SET)
+        {
+            fprintf(stderr, " **error: multiple inputs\n\n");
+            return -1;
+        }
+        in_mode = IN_SINGLE_FILE;
+        in_filename = args["f"].as<std::string>();
+    }
+
+    if (args["i"].count() > 0)
+    {
+        if (in_mode != IN_NOT_SET)
+        {
+            fprintf(stderr, " **error: multiple inputs\n\n");
+            return -1;
+        }
+        in_mode = IN_CMDLINE_ARG;
+        words = args["i"].as<std::string>();
+    }
+
+    if (args["o"].count() > 0)
+    {
+        out_mode |= OUT_SINGLE_FILE;
+        out_filename = args["o"].as<std::string>();
+    }
+
     if (!isatty(fileno(stdin)))
     {
         in_mode = IN_STDIN;
     }
 
+    if (args["x"].count() > 0)
+        out_mode |= OUT_SINGLE_FILE;
+    prefix = args["x"].as<std::string>();
+
+    // OUTPUTS
+    if (args["p"].count() > 0)
+    {
+        silence_output = false;
+        out_mode |= OUT_PLAYBACK;
+    }
+
+    if (args["c"].count() > 0)
+        out_mode |= OUT_STDOUT;
+
+    if (args["w"].count() > 0)
+        out_mode |= OUT_SINGLE_FILE;
+
+    if (args["m"].count() > 0)
+    {
+        silence_output = true;
+        out_mode &= ~OUT_PLAYBACK;
+    }
+
     for (int i = 1; i < my_argc; i++)
     {
         // INPUTS
-        if (strcmp(my_argv[i], "-i") == 0)
+        // else if (strcmp(my_argv[i], "--files") == 0)
+        // {
+        //     WARN_UNMATCHED_INPUTS();
+        //     if (in_mode != IN_NOT_SET)
+        //     {
+        //         fprintf(stderr, " **error: multiple inputs\n\n");
+        //         return -1;
+        //     }
+        //     in_mode = IN_MULTIPLE_FILES;
+        //     // FIXME: get array of char*filename
+        //     if ((in_filename = copy_arg(i + 1)) == 0)
+        //         return -1;
+        //     ++i;
+        // }
+        if (strcmp(my_argv[i], "-") == 0)
         {
-            WARN_UNMATCHED_INPUTS();
-            if (in_mode != IN_NOT_SET)
-            {
-                fprintf(stderr, " **error: multiple inputs\n\n");
-                return -1;
-            }
-            in_mode = IN_CMDLINE_ARG;
-            if ((words = copy_arg(i + 1)) == 0)
-                return -1;
-            ++i;
-        }
-        else if (strcmp(my_argv[i], "-f") == 0)
-        {
-            WARN_UNMATCHED_INPUTS();
-            if (in_mode != IN_NOT_SET)
-            {
-                fprintf(stderr, " **error: multiple inputs\n\n");
-                return -1;
-            }
-            in_mode = IN_SINGLE_FILE;
-            if ((in_filename = copy_arg(i + 1)) == 0)
-                return -1;
-            ++i;
-        }
-        else if (strcmp(my_argv[i], "--files") == 0)
-        {
-            WARN_UNMATCHED_INPUTS();
-            if (in_mode != IN_NOT_SET)
-            {
-                fprintf(stderr, " **error: multiple inputs\n\n");
-                return -1;
-            }
-            in_mode = IN_MULTIPLE_FILES;
-            // FIXME: get array of char*filename
-            if ((in_filename = copy_arg(i + 1)) == 0)
-                return -1;
-            ++i;
-        }
-        else if (strcmp(my_argv[i], "-") == 0)
-        {
-            WARN_UNMATCHED_INPUTS();
             if (in_mode != IN_NOT_SET && in_mode != IN_STDIN)
             {
                 fprintf(stderr, " **error: multiple inputs\n\n");
@@ -409,104 +367,6 @@ int Nano::parse_commandline_arguments()
             in_mode = IN_STDIN;
             in_fp = stdin;
         }
-
-        // OUTPUTS
-        else if (strcmp(my_argv[i], "-o") == 0)
-        {
-            WARN_UNMATCHED_INPUTS();
-            out_mode |= OUT_SINGLE_FILE;
-            if ((out_filename = copy_arg(i + 1)) == 0)
-                return -1;
-            ++i;
-        }
-        else if (strcmp(my_argv[i], "-c") == 0)
-        {
-            WARN_UNMATCHED_INPUTS();
-            out_mode |= OUT_STDOUT;
-        }
-        else if (strcmp(my_argv[i], "-w") == 0 || strcmp(my_argv[i], "--wav") == 0)
-        {
-            WARN_UNMATCHED_INPUTS();
-            out_mode |= OUT_SINGLE_FILE;
-        }
-        else if (strcmp(my_argv[i], "-m") == 0 || strcmp(my_argv[i], "--no-play") == 0)
-        {
-            WARN_UNMATCHED_INPUTS();
-            silence_output = true;
-            out_mode &= ~OUT_PLAYBACK;
-        }
-        else if (strcmp(my_argv[i], "-p") == 0 || strcmp(my_argv[i], "--play") == 0)
-        {
-            WARN_UNMATCHED_INPUTS();
-            silence_output = false;
-            out_mode |= OUT_PLAYBACK;
-        }
-        else if (strcmp(my_argv[i], "--prefix") == 0)
-        {
-            WARN_UNMATCHED_INPUTS();
-            out_mode |= OUT_SINGLE_FILE;
-            if (i + 1 >= my_argc)
-                return -1;
-            strncpy(prefix, my_argv[i + 1], sizeof(prefix));
-            ++i;
-        }
-
-        // SVOX
-        else if (strcmp(my_argv[i], "-v") == 0 || strcmp(my_argv[i], "--voice") == 0)
-        {
-            WARN_UNMATCHED_INPUTS();
-            if ((voice = copy_arg(i + 1)) == 0)
-                return -1;
-            ++i;
-        }
-        else if (strcmp(my_argv[i], "-l") == 0)
-        {
-            WARN_UNMATCHED_INPUTS();
-            if ((langfiledir = copy_arg(i + 1)) == 0)
-                return -1;
-            fprintf(stderr, "Using Lingware directory: %s\n", langfiledir);
-            ++i;
-        }
-
-        // OTHER
-        else if (strcmp(my_argv[i], "--speed") == 0)
-        {
-            WARN_UNMATCHED_INPUTS();
-            if (i + 1 >= my_argc)
-                return -1;
-            modifiers.setSpeed(strtof(my_argv[i + 1], 0));
-            ++i;
-        }
-        else if (strcmp(my_argv[i], "--pitch") == 0)
-        {
-            WARN_UNMATCHED_INPUTS();
-            if (i + 1 >= my_argc)
-                return -1;
-            modifiers.setPitch(strtof(my_argv[i + 1], 0));
-            ++i;
-        }
-        else if (strcmp(my_argv[i], "--volume") == 0)
-        {
-            WARN_UNMATCHED_INPUTS();
-            if (i + 1 >= my_argc)
-                return -1;
-            modifiers.setVolume(strtof(my_argv[i + 1], 0));
-            ++i;
-        }
-
-        // doesn't match any expected arguments; therefor try to speak it
-        else
-        {
-            if (in_mode != IN_NOT_SET && in_mode != IN_CMDLINE_TRAILING)
-            {
-                fprintf(stderr, " **error: trailing commandline arguments\n\n");
-                return -4;
-            }
-
-            // TODO: collect the valid straggling terms and concat them together
-            words = copy_arg(i);
-            in_mode = IN_CMDLINE_TRAILING;
-        }
     }
 
     if (verify_input_output() < 0)
@@ -514,57 +374,10 @@ int Nano::parse_commandline_arguments()
         return -3;
     }
 
-    // DEFAULTS
-    if (!voice)
+    if (out_filename.empty())
     {
-        voice = new char[6];
-        strcpy(voice, "en-GB");
-    }
-
-    if (!langfiledir)
-    {
-        const char *path_p = 0;
-        char test_file[128];
-        for (unsigned int i = 0; i < sizeof(lingware_paths) / sizeof(lingware_paths[0]); ++i)
-        {
-            sprintf(test_file, "%s/%s", lingware_paths[i], "en-GB_ta.bin");
-            struct stat ss;
-            if (-1 != stat(lingware_paths[i], &ss))
-            {
-                if (S_ISDIR(ss.st_mode))
-                {
-                    if (-1 != stat(test_file, &ss))
-                    {
-                        if (S_ISREG(ss.st_mode))
-                        {
-                            path_p = lingware_paths[i];
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-
-        if (!path_p)
-        {
-            fprintf(stderr, " **error: Lang file path not found. Looking in: %s, %s\n\n", lingware_paths[0], lingware_paths[1]);
-            return -8;
-        }
-
-        int len = strlen(path_p) + 1;
-        langfiledir = new char[len];
-        strcpy(langfiledir, path_p);
-    }
-
-    if (!out_filename)
-    {
-        int tmpsize = 100;
-        out_filename = new char[tmpsize];
-        memset(out_filename, 0, tmpsize);
-        int next = GetNextLowestFilenameNumber(prefix, suffix, FILENAME_NUMBERING_LEADING_ZEROS);
-        char fmt[32];
-        sprintf(fmt, "%%s%%0%dd%%s", FILENAME_NUMBERING_LEADING_ZEROS);
-        sprintf(out_filename, fmt, prefix, next, suffix);
+        int next = GetNextLowestFilenameNumber(prefix.c_str(), suffix, FILENAME_NUMBERING_LEADING_ZEROS);
+        out_filename = fmt::format("{}{:04d}{}", prefix, next, suffix);
     }
 
     //
@@ -597,7 +410,7 @@ int Nano::setup_input_output()
         }
         else
         {
-            if (!words)
+            if (words.empty())
             {
                 fprintf(stderr, " **error: reading from stdin.\n\n");
                 return -1;
@@ -709,15 +522,15 @@ int Nano::ProduceInput(unsigned char **data, unsigned int *bytes)
         fprintf(stderr, "read: %u bytes from stdin\n", input_size);
         break;
     case IN_SINGLE_FILE:
-        mmfile = new mmfile_t(in_filename);
+        mmfile = new mmfile_t(in_filename.c_str());
         *data = mmfile->data;
         *bytes = mmfile->size + 1; /* 1 additional for terminating '\0' */
-        fprintf(stderr, "read: %u bytes from \"%s\"\n", mmfile->size, in_filename);
+        fprintf(stderr, "read: %u bytes from \"%s\"\n", mmfile->size, in_filename.c_str());
         break;
     case IN_CMDLINE_ARG:
     case IN_CMDLINE_TRAILING:
-        *data = (unsigned char *)words;
-        *bytes = strlen(words) + 1; /* 1 additional for terminating '\0' */
+        *data = (unsigned char *)words.c_str();
+        *bytes = words.length() + 1; /* 1 additional for terminating '\0' */
         fprintf(stderr, "read: %u bytes from command line\n", *bytes);
         break;
     case IN_MULTIPLE_FILES:
@@ -740,12 +553,12 @@ int Nano::playOutput()
     return 1;
 }
 
-const char *Nano::getVoice()
+const std::string& Nano::getVoice()
 {
     return voice;
 }
 
-const char *Nano::getLangFilePath()
+const std::string& Nano::getLangFilePath()
 {
     return langfiledir;
 }
@@ -965,7 +778,6 @@ int main(int argc, char **argv)
         {
             return 0;
         }
-        nano.PrintUsage();
         return 127; // command not found
     }
 
@@ -980,12 +792,12 @@ int main(int argc, char **argv)
 
     //
     PicoSingleton &pico = PicoSingleton::instance();
-    pico.setLangFilePath(nano.getLangFilePath());
-    pico.setOutFilename(nano.outFilename());
+    pico.setLangFilePath(nano.getLangFilePath().c_str());
+    pico.setOutFilename(nano.outFilename().c_str());
 
-    if (pico.setVoice(nano.getVoice()) < 0)
+    if (pico.setVoice(nano.getVoice().c_str()) < 0)
     {
-        fprintf(stderr, "set voice failed, with: \"%s\n\"", nano.getVoice());
+        std::cerr << "set voice failed, with: \"" << nano.getVoice() << "\"" << std::endl;
         pico.destroy();
         nano.destroy();
         return 127; // command not found

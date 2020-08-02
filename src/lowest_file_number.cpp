@@ -71,7 +71,8 @@ int GetNextLowestFilenameNumber( const char * prefix, const char * suffix, int z
 
 #else /* Not Windows */
 
-int GetNextLowestFilenameNumber( const char * prefix, const char * suffix, int zeropad ) {
+int GetNextLowestFilenameNumber( const char * prefix, const char* suffix, int zeropad ) {
+    (void)suffix;
     DIR * dir_p = opendir( "." );
     if ( !dir_p ) {
         fprintf( stderr, "can't read directory: \".\"\n" );
